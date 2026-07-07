@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPEED LIFE - Testador de Internet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            background-color: #060608;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- MARCA NO TOPO --- */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .brand-header h1 {
+            font-size: 26px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 15px #00f0ff;
+            letter-spacing: 2px;
+        }
+        .brand-header p {
+            font-size: 10px;
+            color: #6c7284;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- ESTRUTURA LATERAL COMPLETA --- */
+        .page-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* Força a coluna central a expandir e aparecer na tela */
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1; 
+            max-width: 580px;
+            width: 100%;
+        }
+
+        /* Caixa do Testador */
+        .test-container {
+            background-color: #0f1015;
+            border: 2px solid #00f0ff;
+            border-radius: 16px;
+            width: 100%;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+            text-align: center;
+            position: relative;
+        }
+
+        /* --- BLOCOS DE ANÚNCIOS CORE --- */
+        .ad-slot {
+            background-color: #0a0b0e;
+            border: 1px dashed #2c3142;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #454d66;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .ad-top { width: 100%; height: 90px; margin-bottom: 20px; }
+        .ad-footer { width: 100%; height: 90px; margin-top: 20px; }
+        
+        .sidebar-ad-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 160px;
+            flex-shrink: 0;
+        }
+        .ad-sidebar-box {
+            height: 285px;
+            width: 160px;
+        }
+
+        @media (max-width: 950px) {
+            .sidebar-ad-column { display: none; }
+        }
+
+        .title { font-size: 18px; text-shadow: 0 0 10px #00f0ff; margin-bottom: 25px; font-weight: 900; color: #00f0ff; }
+
+        /* --- RELÓGIO DE ARCO 270° --- */
+        .gauge-wrapper {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 0 auto 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gauge-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(135deg); 
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: #14161d;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 471;
+        }
+
+        .gauge-progress {
+            fill: none;
+            stroke: #00f0ff;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 471;
+            stroke-dashoffset: 471;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+        }
+
+        .gauge-ticks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .tick {
+            position: absolute;
+            width: 2px;
+            height: 8px;
+            background-color: #2c3142;
+            left: calc(50% - 1px);
+            transform-origin: 50% 130px;
+        }
+
+        .tick-active {
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .gauge-center-info {
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: -10px;
+        }
+
+        .current-speed {
+            font-size: 46px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .unit {
+            font-size: 14px;
+            color: #00f0ff;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* --- DISPLAYS --- */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .result-box {
+            background-color: #0a0b0e;
+            border: 1px solid #1f222e;
+            border-radius: 10px;
+            padding: 15px 10px;
+        }
+
+        .active-box {
+            border-color: #00f0ff !important;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        .result-box label {
+            font-size: 11px;
+            color: #6c7284;
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .result-box span { font-size: 16px; font-weight: 900; }
+
+        .network-info-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background-color: #0a0b0e;
+            border: 1px solid #1f222e;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .info-item { display: flex; flex-direction: column; gap: 4px; }
+        .info-item label { color: #6c7284; font-weight: bold; text-transform: uppercase; }
+        
+        .change-server-btn {
+            color: #00f0ff;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px dashed #00f0ff;
+            width: fit-content;
+            margin-top: 2px;
+            outline: none;
+        }
+
+        /* --- LISTA DE SERVIDORES DROPDOWN NO LOCAL --- */
+        .inline-server-list {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            background-color: #050608;
+            border: 1px solid #2c3142;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .inline-server-option {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid transparent;
+        }
+
+        .inline-server-option:hover {
+            background-color: rgba(0, 240, 255, 0.05);
+            border-color: #00f0ff;
+            color: #00f0ff;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand-header">
+        <h1>SPEED LIFE</h1>
+        <p>Testador de Internet Dinâmico & Gerenciador de Rotas</p>
+    </div>
+
+    <div class="page-wrapper">
+        
+        <div class="sidebar-ad-column">
+            <div class="ad-slot ad-sidebar-box">Anúncio Lateral 1<br>160 x 290</div>
+            <div class="ad-slot ad-sidebar-box">Anúncio Lateral 2<br>160 x 290</div>
+        </div>
+
+        <div class="center-column">
+            
+            <div class="ad-slot ad-top">Anúncio Publicitário Topo - 728 x 90</div>
+
+            <div class="test-container" id="click-zone">
+
+                <div class="title">CONSOLE DE MEDIÇÃO</div>
+
+                <div class="gauge-wrapper">
+                    <svg class="gauge-svg" viewBox="0 0 260 260">
+                        <circle class="gauge-bg" cx="130" cy="130" r="75"></circle>
+                        <circle class="gauge-progress" id="progress-bar" cx="130" cy="130" r="75"></circle>
+                    </svg>
+                    <div class="gauge-ticks" id="tick-container"></div>
+                    <div class="gauge-center-info">
+                        <div class="current-speed" id="live-speed">0.0</div>
+                        <div class="unit">Mbps</div>
+                    </div>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-box" id="box-ping"><label>Ping</label><span id="ping-val">-</span> ms</div>
+                    <div class="result-box" id="box-download"><label>Download</label><span id="download-val">-</span></div>
+                    <div class="result-box" id="box-upload"><label>Upload</label><span id="upload-val">-</span></div>
+                </div>
+
+                <div class="network-info-panel">
+                    <div class="info-item"><label>Provedor</label><span>Vianet Telecomunicações</span></div>
+                    <div class="info-item"><label>Servidor / Rota</label><div><span id="current-server" style="font-weight:bold; display:block;">Imperatriz - Netshow</span><button class="change-server-btn" id="change-btn">Change Server</button></div></div>
+                    <div class="info-item"><label>IP Externo</label><span id="info-ip">179.49.186.55</span></div>
+                    <div class="info-item"><label>Conexões</label><span>Multi (Paralela)</span></div>
+                </div>
+
+                <div class="inline-server-list" id="inline-server-list">
+                    <div class="inline-server-option" onclick="selecionarServidor('Imperatriz - Netshow Telecom (Local)', '179.49.186.55', 0, 91.01, 93.92)">📍 Imperatriz - Netshow Telecom (Local)</div>
+                    <div class="inline-server-option" onclick="selecionarServidor('São Paulo - EdgeIX Core', '200.147.67.14', 41, 88.50, 89.10)">🌐 São Paulo - EdgeIX Core</div>
+                    <div class="inline-server-option" onclick="selecionarServidor('Rio de Janeiro - Telecall Node', '45.232.12.89', 47, 86.20, 85.40)">🌐 Rio de Janeiro - Telecall Node</div>
+                </div>
+
+                <button class="start-btn" id="start-btn">GO</button>
+            </div>
+
+            <div class="ad-slot ad-footer">Anúncio Publicitário Rodapé - 728 x 90</div>
+        </div>
+
+        <div class="sidebar-ad-column">
+            <div class="ad-slot ad-sidebar-box">Anúncio Lateral 3<br>160 x 290</div>
+            <div class="ad-slot ad-sidebar-box">Anúncio Lateral 4<br>160 x 290</div>
+        </div>
+
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const liveSpeed = document.getElementById('live-speed');
+        const progressBar = document.getElementById('progress-bar');
+        const tickContainer = document.getElementById('tick-container');
+        const inlineServerList = document.getElementById('inline-server-list');
+        const changeBtn = document.getElementById('change-btn');
+        const clickZone = document.getElementById('click-zone');
+
+        let rota = { pingBonus: 0, down: 91.01, up: 93.92 };
+        const totalTicks = 25;
+
+        // --- POPUNDER CONFIG ---
+        const linkPopunder = "https://google.com";
+        let disparado = false;
+
+        clickZone.addEventListener('click', () => {
+            if (!disparado) {
+                window.open(linkPopunder, '_blank');
+                disparado = true;
+            }
+        });
+
+        for (let i = 0; i <= totalTicks; i++) {
+            let angle = -135 + (i * (270 / totalTicks));
+            let t = document.createElement('div');
+            t.className = 'tick';
+            t.style.transform = `rotate(${angle}deg)`;
+            tickContainer.appendChild(t);
+        }
+
+        changeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (inlineServerList.style.display === 'flex') {
+                inlineServerList.style.display = 'none';
+            } else {
+                inlineServerList.style.display = 'flex';
+            }
+        });
+
+        function selecionarServidor(nome, ip, pingB, d, u) {
+            document.getElementById('current-server').innerText = nome;
+            document.getElementById('info-ip').innerText = ip;
+            rota = { pingBonus: pingB, down: d, up: u };
+            inlineServerList.style.display = 'none';
+        }
+
+        function updateGauge(speed) {
+            let circumference = 2 * Math.PI * 75;
+            let pct = Math.min(speed / 120, 1);
+            progressBar.style.strokeDashoffset = circumference - (pct * circumference);
+
+            let active = Math.round(pct * totalTicks);
+            document.querySelectorAll('.tick').forEach((t, idx) => {
+                if (idx <= active && speed > 0) {
+                    t.classList.add('tick-active');
+                    t.style.backgroundColor = progressBar.style.stroke;
+                } else {
+                    t.classList.remove('tick-active');
+                    t.style.backgroundColor = '#2c3142';
+                }
+            });
+        }
+
+        startBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            startBtn.disabled = true;
+            inlineServerList.style.display = 'none';
+            document.getElementById('box-ping').classList.add('active-box');
+            
+            await new Promise(r => setTimeout(r, 1500));
+            document.getElementById('ping-val').innerText = 1 + rota.pingBonus;
+            document.getElementById('box-ping').classList.remove('active-box');
+
+            document.getElementById('box-download').classList.add('active-box');
+            progressBar.style.stroke = "#00f0ff";
+            await simular(0, rota.down, 8000, v => { liveSpeed.innerText = v.toFixed(1); updateGauge(v); });
+            document.getElementById('download-val').innerText = rota.down.toFixed(2) + " Mbps";
+            document.getElementById('box-download').classList.remove('active-box');
+
+            document.getElementById('box-upload').classList.add('active-box');
+            progressBar.style.stroke = "#00ff6c";
+            await simular(0, rota.up, 8000, v => { liveSpeed.innerText = v.toFixed(1); updateGauge(v); });
+            document.getElementById('upload-val').innerText = rota.up.toFixed(2) + " Mbps";
+            document.getElementById('box-upload').classList.remove('active-box');
+
+            progressBar.style.stroke = "#00f0ff";
+            updateGauge(rota.down);
+            liveSpeed.innerText = rota.down.toFixed(1);
+            startBtn.disabled = false;
+        });
+
+        function simular(min, max, duracao, onProgress) {
+            return new Promise(resolve => {
+                let cur = 0;
+                let step = 50;
+                let timer = setInterval(() => {
+                    cur += step;
+                    let pct = cur / duracao;
+                    let v = min + (max - min) * Math.sin(pct * Math.PI / 2);
+                    if(pct > 0.6) v += (Math.random() - 0.5) * 2.8;
+                    else v += (Math.random() - 0.5) * 1.2;
+                    if (v > max + 1) v = max + (Math.random() * 0.4);
+                    if (v < 0) v = 0;
+                    onProgress(v);
+                    if (cur >= duracao) { clearInterval(timer); resolve(); }
+                }, step);
+            });
+        }
+    </script>
+</body>
+</html>
